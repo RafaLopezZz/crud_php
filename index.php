@@ -21,8 +21,10 @@
   <h2 class="text-center">Crear, Leer, Actualizar y Borrar</h2>
 
   <?php
-    include "model/conexion.php";
-    include "controller/eliminar_persona_controller.php";
+    require_once 'model/config.php';
+    require_once 'model/conexion.php';
+    require_once 'controller/actualizar_persona_controller.php';
+    require_once 'controller/eliminar_persona_controller.php';
   ?>
 
   <div class="container-fluid row">
@@ -70,7 +72,8 @@
         </thead>
         <tbody>
           <?php
-          include("model/conexion.php");
+          require_once 'model/config.php';
+          require_once 'model/conexion.php';
           $sql = $conexion->query("SELECT * FROM personas");
           while ($datos = $sql->fetch_object()) { ?>
             <tr>
