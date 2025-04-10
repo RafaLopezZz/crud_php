@@ -21,8 +21,15 @@
   <h2 class="text-center">Crear, Leer, Actualizar y Borrar</h2>
 
   <?php
+    /**
+    * El require_once para archivos como config.php y conexion.php no es necesario repetirlo en un mismo fichero; con que se llame una vez es suficiente. Además, es recomendable colocarlos al principio del documento.
+    *
+    * @author Alberto
+    */
     require_once 'model/config.php';
     require_once 'model/conexion.php';
+
+
     require_once 'controller/actualizar_persona_controller.php';
     require_once 'controller/eliminar_persona_controller.php';
   ?>
