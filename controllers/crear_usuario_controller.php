@@ -1,9 +1,6 @@
 <?php
 // Se inicia la sesión para manejar variables de sesión
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
+(session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
 // Verificación de ficheros de configuración y conexión
 // Se verifica si el archivo de configuración y conexión existen y se incluyen
 if (!defined('DB_HOST')) {
@@ -11,7 +8,7 @@ if (!defined('DB_HOST')) {
 }
 
 if (!isset($conexion)) {
-    require_once 'model/conexion.php';
+    require_once 'models/conexion.php';
 }
 
 if(!empty($_POST['btnregistrar'])){

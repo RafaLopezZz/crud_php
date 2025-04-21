@@ -26,4 +26,12 @@ function cerrarConexion($conexion) {
         $conexion->close();
     }
 }
+
+function isAdmin(): bool {
+    return (isset($_SESSION['rol']) && $_SESSION['rol'] === 'ADMIN');
+}
+
+function isUser(): bool {
+    return (isset($_SESSION['rol']) && $_SESSION['rol'] === 'USER');
+}
 ?>

@@ -1,16 +1,25 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-} else {
-    session_destroy();
-}
+
+/**
+ * En condicionales sencillos como el que aparece a continuación, puedes utilizar un condicional ternario para emplear solo una línea de código, como por ejemplo:
+ *
+ * (session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
+ *
+ * @author Alberto
+ */
+(session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
 
 if (!defined('DB_HOST')) {
-    require_once 'config.php';
+    require_once '../models/config.php';
 }
 
 if (!isset($conexion)) {
-    require_once 'model/conexion.php';
+    require_once '../models/conexion.php';
+}
+
+if (!isset($_SESSION['usuario_id'])) {
+    header('Location: ../views/login_view.php?mensaje=acceso_denegado');
+    exit;
 }
 
 if (!empty($_POST['btnactualizar'])) {
@@ -47,7 +56,7 @@ if (!empty($_POST['btnactualizar'])) {
 
     try {
         // Consulta preparada - PreparedStatement
-        $stmt = $conexion->prepare("UPDATE personas SET nombre=?, apellidos=?, DNI=?, fecha_nacimiento=?, correo=? WHERE id=?");
+        $stmt = $conexion->prepare("UPDATE usuarios SET nombre=?, apellidos=?, DNI=?, fecha_nacimiento=?, correo=? WHERE id=?");
         $stmt->bind_param("sssssi", $nombre, $apellidos, $dni, $fecha_nacimiento, $correo, $id);
         $resultado = $stmt->execute();
 
@@ -55,7 +64,7 @@ if (!empty($_POST['btnactualizar'])) {
             echo $_SESSION['flash_message'] = "<div class='alert alert-success'>Datos actualizados con éxito</div>";
             unset($_SESSION['flash_message']);
             // Redirige a la página principal después de la actualización
-            header("location: index.php?mensaje=modificado");
+            header("location: ../index.php?mensaje=modificado");
         } else {
             throw new Exception("Error al insertar los datos");
         }
@@ -75,5 +84,3 @@ if (!empty($_POST['btnactualizar'])) {
         unset($_SESSION['flash_message']);
     }
 }
-
-?>
