@@ -95,7 +95,18 @@ if (!isset($_SESSION["usuario_id"])) {
               <td><?= htmlspecialchars($usuario['correo']) ?></td>
 
               <?php if ($_SESSION['rol'] === 'ADMIN'): ?>
-                <td><?= htmlspecialchars($usuario['fecha_nacimiento']) ?></td>
+                <td>
+                  <?php
+                  try {
+                    $dt = new DateTime($usuario['fecha_nacimiento']);
+                    // formateo día/mes/año
+                    echo htmlspecialchars($dt->format('d/m/Y'));
+                  } catch (Exception $ex) {
+                    // si la cadena no es una fecha válida, muestro igual la original
+                    echo htmlspecialchars($usuario['fecha_nacimiento']);
+                  }
+                  ?>
+                </td>
                 <td><?= htmlspecialchars($usuario['dni']) ?></td>
                 <td><?= htmlspecialchars($usuario['rol']) ?></td>
                 <td>
@@ -123,18 +134,18 @@ if (!isset($_SESSION["usuario_id"])) {
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-  // Esperar a que el DOM esté listo
-  document.addEventListener("DOMContentLoaded", function () {
-    const alert = document.querySelector(".alert");
-    if (alert) {
-      // Espera 4 segundos y luego oculta la alerta suavemente
-      setTimeout(() => {
-        const bsAlert = new bootstrap.Alert(alert);
-        bsAlert.close(); // Usa la clase de Bootstrap para cerrarla correctamente
-      }, 4000);
-    }
-  });
-</script>
+    // Esperar a que el DOM esté listo
+    document.addEventListener("DOMContentLoaded", function() {
+      const alert = document.querySelector(".alert");
+      if (alert) {
+        // Espera 4 segundos y luego oculta la alerta suavemente
+        setTimeout(() => {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close(); // Usa la clase de Bootstrap para cerrarla correctamente
+        }, 4000);
+      }
+    });
+  </script>
 </body>
 
 </html>

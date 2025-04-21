@@ -1,88 +1,93 @@
 <?php
-// Se inicia la sesión para manejar variables de sesión
-(session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
-// Verificación de ficheros de configuración y conexión
-// Se verifica si el archivo de configuración y conexión existen y se incluyen
-if (!defined('DB_HOST')) {
-    require_once 'config.php';
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once __DIR__ . '/../models/config.php';
+require_once __DIR__ . '/../models/conexion.php';
+
+// Sólo ADMIN puede crear
+if (!isset($_SESSION['usuario_id']) || $_SESSION['rol'] !== 'ADMIN') {
+    header('Location: ../views/listar_usuarios_view.php?mensaje=acceso_denegado');
+    exit;
 }
 
-if (!isset($conexion)) {
-    require_once 'models/conexion.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../views/crear_usuario_view.php');
+    exit;
 }
 
-if(!empty($_POST['btnregistrar'])){
-    if(!empty($_POST["nombre"]) && !empty($_POST["apellidos"]) && !empty($_POST["DNI"]) && !empty($_POST["fecha_nacimiento"]) && !empty($_POST["correo"])) {
-        
-        // Sanitizar datos
 
-        $nombre = htmlspecialchars(trim($_POST["nombre"]));
-        $apellidos = htmlspecialchars(trim($_POST["apellidos"]));
-        $dni = htmlspecialchars(trim($_POST["DNI"]));
-        $fecha_nacimiento = htmlspecialchars(trim($_POST["fecha_nacimiento"]));
-        $correo = htmlspecialchars(trim($_POST["correo"]));
-        
-        // Validar email
-        if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
-            $_SESSION['flash_message'] = "<div class='alert alert-danger'>El correo electrónico no es válido</div>";
-            echo $_SESSION['flash_message'];
-            unset($_SESSION['flash_message']);
-            return;
-        }
-        
-        // Validar DNI (Ejemplo: 12345678A)
-        if (!preg_match('/^\d{8}[A-Z]$/', $dni)) {
-            $_SESSION['flash_message'] = "<div class='alert alert-danger'>El DNI no tiene un formato válido</div>";
-            echo $_SESSION['flash_message'];
-            unset($_SESSION['flash_message']);
-            return;
-        }
+$nombre = trim($_POST['nombre'] ?? '');
+$apellidos = trim($_POST['apellidos'] ?? '');
+$dni = trim($_POST['DNI'] ?? '');
+$fecha_nacimiento = trim($_POST['fecha_nacimiento'] ?? '');
+$correo = trim($_POST['correo'] ?? '');
+$password = $_POST['password'] ?? '';
+$confirmar_password = $_POST['confirmar_password'] ?? '';
 
-        // Validar fecha de nacimiento
-        $fecha_obj = DateTime::createFromFormat('Y-m-d', $fecha_nacimiento);
-        if (!$fecha_obj || $fecha_obj->format('Y-m-d') !== $fecha_nacimiento) {
-            $_SESSION['flash_message'] = "<div class='alert alert-danger'>La fecha no tiene un formato válido</div>";
-            echo $_SESSION['flash_message'];
-            unset($_SESSION['flash_message']);
-            return;
-        }
+if (empty($nombre) || empty($apellidos) || empty($dni) || empty($fecha_nacimiento)   || empty($correo)   || empty($password) || empty($confirmar_password)) {
+    $_SESSION['flash'] = [
+        'type' => 'danger',
+        'msg'  => 'Todos los campos son obligatorios'
+    ];
+    header('Location: ../views/crear_usuario_view.php');
+    exit;
+}
+if ($password !== $confirmar_password) {
+    $_SESSION['flash'] = [
+        'type' => 'danger',
+        'msg'  => 'Las contraseñas no coinciden'
+    ];
+    header('Location: ../views/crear_usuario_view.php');
+    exit;
+}
 
-        try {
-            // Consulta preparada - PreparedStatement
-            $stmt = $conexion->prepare("INSERT INTO personas (nombre, apellidos, DNI, fecha_nacimiento, correo) VALUES (?, ?, ?, ?, ?)");
-            $stmt->bind_param("sssss", $nombre, $apellidos, $dni, $fecha_nacimiento, $correo);
-            $resultado = $stmt->execute();
-            
-            if($resultado) {
-                $_SESSION['flash_message'] = "<div class='alert alert-success'>Registro exitoso</div>";
-                echo $_SESSION['flash_message'];
-                unset($_SESSION['flash_message']);
-            } else {
-                throw new Exception("Error al insertar los datos");
-            }
-            
-            // Cerrar el statement
-            $stmt->close();
-            
-        } catch (Exception $ex) {
-            if(DEBUG_MODE) {
-                $_SESSION['flash_message'] = "<div class='alert alert-danger'>Error: " . $ex->getMessage() . "</div>";
-                echo $_SESSION['flash_message'];
-                unset($_SESSION['flash_message']);
-            } else {
-                $_SESSION['flash_message'] = "<div class='alert alert-danger'>Error al procesar la solicitud.</div>";
-                echo $_SESSION['flash_message'];
-                unset($_SESSION['flash_message']);
-                error_log("Error en crear_persona_controller: " . $ex->getMessage());
-            }
-            $_SESSION['flash_message'] = "<div class='alert alert-danger'>Error: " . $ex->getMessage() . "</div>";
-            echo $_SESSION['flash_message'];
-            unset($_SESSION['flash_message']);
-        }
-    } else {
-        $_SESSION['flash_message'] = "<div class='alert alert-warning'>Todos los campos son obligatorios</div>";
-        echo $_SESSION['flash_message'];
-        unset($_SESSION['flash_message']);
+// (Aquí irían tus comprobaciones de email/DNI duplicados, hashing, INSERT...)
+
+// Validar email
+if (!filter_var($correo, FILTER_VALIDATE_EMAIL)) {
+    echo $_SESSION['flash_message'] = "<div class='alert alert-danger'>El correo electrónico no es válido</div>";
+    unset($_SESSION['flash_message']);
+    return;
+}
+
+// Validar DNI (Ejemplo: 12345678A)
+if (!preg_match('/^\d{8}[A-Z]$/', $dni)) {
+    echo $_SESSION['flash_message'] =  "<div class='alert alert-danger'>El DNI no tiene un formato válido</div>";
+    unset($_SESSION['flash_message']);
+    return;
+}
+
+// Validar fecha de nacimiento
+$fecha_obj = DateTime::createFromFormat('Y-m-d', $fecha_nacimiento);
+if (!$fecha_obj || $fecha_obj->format('Y-m-d') !== $fecha_nacimiento) {
+    echo $_SESSION['flash_message'] = "<div class='alert alert-danger'>La fecha no tiene un formato válido</div>";
+    unset($_SESSION['flash_message']);
+    return;
+}
+
+try {
+    $hash = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $conexion->prepare(
+        "INSERT INTO usuarios(nombre, apellidos, DNI, fecha_nacimiento, correo, password) VALUES (?,?,?,?,?,?)"
+    );
+    $stmt->bind_param('ssssss', $nombre, $apellidos, $dni, $fecha_nacimiento, $correo, $hash);
+    if (!$stmt->execute()) {
+        throw new Exception('No se pudo crear el usuario');
     }
+    $stmt->close();
+
+    $_SESSION['flash'] = [
+        'type' => 'success',
+        'msg'  => 'Usuario creado correctamente'
+    ];
+    header('Location: ../views/listar_usuarios_view.php');
+    exit;
+} catch (Exception $ex) {
+    $_SESSION['flash'] = [
+        'type' => 'danger',
+        'msg'  => 'Error: ' . $ex->getMessage()
+    ];
+    header('Location: ../views/crear_usuario_view.php');
+    exit;
 }
-?>

@@ -65,7 +65,7 @@ if (isset($_SESSION["usuario_id"])) {
                             </div>
                             <div class="mb-3">
                                 <label for="dni" class="form-label">DNI</label>
-                                <input type="text" class="form-control" id="dni" name="dni" aria-describedby="dniFeedback" required>
+                                <input type="text" class="form-control" id="DNI" name="DNI" aria-describedby="dniFeedback" required>
                                 <div id="dniFeedback" class="invalid-feedback">
                                     Introduzca un DNI válido
                                 </div>

@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $nombre = htmlspecialchars(trim($_POST["nombre"]));
 $apellidos = htmlspecialchars(trim($_POST["apellidos"]));
-$dni = htmlspecialchars(trim($_POST["dni"]));
+$dni = htmlspecialchars(trim($_POST["DNI"]));
 $fecha_nacimiento = htmlspecialchars(trim($_POST["fecha_nacimiento"]));
 $correo = htmlspecialchars(trim($_POST["correo"]));
 $password          = $_POST['password'] ?? '';
@@ -47,7 +47,7 @@ try {
     }
 
     // Verificación si el DNI ya existe
-    $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios WHERE dni = ?");
+    $stmt = $conexion->prepare("SELECT COUNT(*) FROM usuarios WHERE DNI = ?");
     if (!$stmt) {
         throw new Exception('Error interno (verificación de DNI)');
     }
@@ -65,7 +65,7 @@ try {
 
     // Inserción del nuevo usuario
     $stmt = $conexion->prepare(
-        "INSERT INTO usuarios (nombre, apellidos, dni, fecha_nacimiento, correo, password)
+        "INSERT INTO usuarios (nombre, apellidos, DNI, fecha_nacimiento, correo, password)
          VALUES (?, ?, ?, ?, ?, ?)"
     );
     if (!$stmt) {
