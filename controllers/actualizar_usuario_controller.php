@@ -1,13 +1,9 @@
 <?php
-
-/**
- * En condicionales sencillos como el que aparece a continuación, puedes utilizar un condicional ternario para emplear solo una línea de código, como por ejemplo:
- *
- * (session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
- *
- * @author Alberto
- */
-(session_status() === PHP_SESSION_NONE) ? session_start() : session_destroy();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+} else {
+    session_destroy();
+}
 
 if (!defined('DB_HOST')) {
     require_once '../models/config.php';
