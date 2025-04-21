@@ -55,7 +55,7 @@ if (!$usuario) {
 
             <div class="mb-3">
                 <label for="inputDNI" class="form-label">DNI</label>
-                <input type="text" class="form-control" name="DNI" value="<?php echo htmlspecialchars($usuario['DNI']); ?>" required>
+                <input type="text" class="form-control" name="dni" value="<?php echo htmlspecialchars($usuario['dni']); ?>" required>
             </div>
 
             <div class="mb-3">

@@ -14,13 +14,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $nombre = htmlspecialchars(trim($_POST["nombre"]));
 $apellidos = htmlspecialchars(trim($_POST["apellidos"]));
-$dni = htmlspecialchars(trim($_POST["DNI"]));
+$dni = htmlspecialchars(trim($_POST["dni"]));
 $fecha_nacimiento = htmlspecialchars(trim($_POST["fecha_nacimiento"]));
 $correo = htmlspecialchars(trim($_POST["correo"]));
 $password          = $_POST['password'] ?? '';
-$confirmar_password= $_POST['confirmar_password'] ?? '';
+$confirmar_password = $_POST['confirmar_password'] ?? '';
 
-if(!empty($_POST["nombre"]) && !empty($_POST["apellidos"]) && !empty($_POST["DNI"]) && !empty($_POST["fecha_nacimiento"]) && !empty($_POST["correo"])) {
+if (empty($nombre) || empty($apellidos) || empty($dni) || empty($fecha_nacimiento) || empty($correo) || empty($password) || empty($confirmar_password)) {
     $_SESSION['error'] = 'Todos los campos son obligatorios';
     header('Location: ../views/registro_view.php');
     exit;
@@ -87,11 +87,9 @@ try {
     // Redirección al listado de usuarios (protegido)
     header('Location: ../views/listar_usuarios_view.php');
     exit;
-
 } catch (Exception $ex) {
     // Capturar cualquier excepción y volver al formulario
     $_SESSION['error'] = $ex->getMessage();
     header('Location: ../views/registro_view.php');
     exit;
 }
-?>

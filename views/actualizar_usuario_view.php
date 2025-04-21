@@ -37,7 +37,7 @@ $sql = $conexion->query("SELECT * FROM usuarios WHERE id='$id'");
             </div>
             <div class="mb-3">
                 <label for="inputDNI" class="form-label">DNI</label>
-                <input type="text" class="form-control" name="DNI" value="<?php echo $datos->DNI; ?>">
+                <input type="text" class="form-control" name="dni" value="<?php echo $datos->dni; ?>">
             </div>
             <div class="mb-3">
                 <label for="inputFecha" class="form-label">Fecha de nacimiento</label>
